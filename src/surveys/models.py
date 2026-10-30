@@ -12,6 +12,18 @@ class SurveyStatus(models.TextChoices):
     ARCHIVED = "archived", "В архиве"
 
 
+class SurveyQuerySet(models.QuerySet):
+    def published(self) -> SurveyQuerySet:
+        return self.filter(status=SurveyStatus.PUBLISHED)
+
+    def visible_to(self, user) -> SurveyQuerySet:
+        if user is None or not user.is_authenticated:
+            return self.published()
+        return self.filter(
+            models.Q(status=SurveyStatus.PUBLISHED) | models.Q(author=user)
+        )
+
+
 class Survey(BaseTimeStampedModel):
     """Опрос"""
 
@@ -35,6 +47,8 @@ class Survey(BaseTimeStampedModel):
         on_delete=models.PROTECT,
         related_name="surveys",
     )
+
+    objects = SurveyQuerySet.as_manager()
 
     class Meta:
         ordering = ["-created_at", "-id"]
