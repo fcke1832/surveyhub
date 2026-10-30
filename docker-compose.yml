@@ -1,0 +1,58 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-survey}
+      POSTGRES_USER: ${POSTGRES_USER:-survey}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-survey} -d ${POSTGRES_DB:-survey}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    logging: *default-logging
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+    environment:
+      DJANGO_DEBUG: "false"
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY in .env}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:8000}
+      DJANGO_SECURE_SSL_REDIRECT: "false"
+      DJANGO_LOG_LEVEL: ${DJANGO_LOG_LEVEL:-INFO}
+      DATABASE_URL: postgres://${POSTGRES_USER:-survey}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-survey}
+      SURVEY_ALLOW_HEADER_AUTH: "false"
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT:-8000}:8000"
+    logging: *default-logging
+    restart: unless-stopped
+
+  # Log viewer for all containers: http://localhost:${DOZZLE_PORT:-9999}
+  dozzle:
+    image: amir20/dozzle:v11.4.0
+    environment:
+      DOZZLE_NO_ANALYTICS: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "${DOZZLE_PORT:-9999}:8080"
+    logging: *default-logging
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
