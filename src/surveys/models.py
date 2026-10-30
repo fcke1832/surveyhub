@@ -33,6 +33,8 @@ class Survey(BaseTimeStampedModel):
 
     class Meta:
         ordering = ["-created_at", "-id"]
+        verbose_name = "Опрос"
+        verbose_name_plural = "Опросы"
 
     def __str__(self) -> str:
         return self.title
@@ -56,6 +58,8 @@ class Question(BaseTimeStampedModel):
 
     class Meta:
         ordering = ["position", "id"]
+        verbose_name = "Вопрос"
+        verbose_name_plural = "Вопросы"
 
     def __str__(self) -> str:
         return f"Вопрос {self.position}: {self.text[:50]}"
@@ -74,6 +78,8 @@ class OptionAnswer(BaseTimeStampedModel):
 
     class Meta:
         ordering = ["position", "id"]
+        verbose_name = "Свой вариант ответа"
+        verbose_name_plural = "Свои варианты ответов"
 
     def __str__(self) -> str:
         return f"Вариант ответа {self.position}: {self.text[:50]}"
@@ -97,6 +103,8 @@ class Answer(BaseTimeStampedModel):
 
     class Meta:
         ordering = ["position", "id"]
+        verbose_name = "Ответ"
+        verbose_name_plural = "Ответы"
 
     def __str__(self) -> str:
         return f"Ответ {self.position}: {self.text[:50]}"
@@ -125,6 +133,10 @@ class SurveyStatistics(BaseTimeStampedModel):
         null=True, blank=True, help_text="Время последнего ответа"
     )
 
+    class Meta:
+        verbose_name = "Статистика опроса"
+        verbose_name_plural = "Статистика опросов"
+
     def __str__(self) -> str:
         return f"Статистика опроса {self.survey_id}"
 
@@ -146,6 +158,10 @@ class QuestionStatistics(BaseTimeStampedModel):
         null=True, blank=True, help_text="Время последнего ответа"
     )
 
+    class Meta:
+        verbose_name = "Статистика вопроса"
+        verbose_name_plural = "Статистика вопросов"
+
     def __str__(self) -> str:
         return f"Статистика вопроса {self.question_id}"
 
@@ -160,6 +176,10 @@ class OptionAnswerStatistics(BaseTimeStampedModel):
     last_answered_at = models.DateTimeField(
         null=True, blank=True, help_text="Время последнего ответа"
     )
+
+    class Meta:
+        verbose_name = "Статистика своих вариантов ответа"
+        verbose_name_plural = "Статистика своих вариантов ответов"
 
     def __str__(self) -> str:
         return f"Статистика своих вариантов ответа {self.option_id}"
