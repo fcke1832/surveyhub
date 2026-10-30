@@ -4,6 +4,12 @@ from django.db import models
 from src.core.models import BaseTimeStampedModel
 
 
+class SurveyStatus(models.TextChoices):
+    DRAFT = "draft", "Черновик"
+    PUBLISHED = "published", "Опубликован"
+    ARCHIVED = "archived", "В архиве"
+
+
 class Survey(BaseTimeStampedModel):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, default="")
@@ -13,6 +19,12 @@ class Survey(BaseTimeStampedModel):
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name="surveys",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=SurveyStatus.choices,
+        default=SurveyStatus.DRAFT,
+        db_index=True,
     )
 
     class Meta:
@@ -41,3 +53,21 @@ class Question(BaseTimeStampedModel):
 
     def __str__(self) -> str:
         return f"Вопрос {self.position}: {self.text[:50]}"
+
+
+class Answer(BaseTimeStampedModel):
+    id = models.BigAutoField(primary_key=True)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="answers"
+    )
+    text = models.TextField()
+    position = models.PositiveIntegerField(
+        help_text="Позиция отображения внутри опроса.",
+    )
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["position", "id"]
+
+    def __str__(self) -> str:
+        return f"Ответ {self.position}: {self.text[:50]}"
