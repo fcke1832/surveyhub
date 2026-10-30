@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Answer, Question, QuestionStatistics, Survey, SurveyStatistics
+from .models import (
+    Answer,
+    OptionAnswer,
+    Question,
+    QuestionStatistics,
+    Survey,
+    SurveyStatistics,
+)
 
 
 class QuestionInline(admin.TabularInline):
@@ -20,13 +27,21 @@ class SurveyAdmin(admin.ModelAdmin):
     search_fields = ("title", "author__username")
     readonly_fields = (
         "author",
-        "question_count",
         "status",
         "published_at",
         "created_at",
         "updated_at",
     )
     inlines = (QuestionInline,)
+
+
+class OptionAnswerInline(admin.TabularInline):
+    model = OptionAnswer
+    extra = 0
+    can_delete = False
+    fields = ("position", "text")
+    readonly_fields = fields
+    ordering = ("position", "id")
 
 
 @admin.register(Question)
@@ -42,6 +57,7 @@ class QuestionAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
+    inlines = (OptionAnswerInline,)
 
 
 @admin.register(Answer)
@@ -71,7 +87,7 @@ class SurveyStatisticsAdmin(admin.ModelAdmin):
         "completed_count",
         "answer_count",
         "custom_answer_count",
-        "average_duration_ms",
+        "total_duration_ms",
         "updated_at",
     )
     list_filter = ("survey", "updated_at")
