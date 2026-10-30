@@ -61,6 +61,24 @@ class Question(BaseTimeStampedModel):
         return f"Вопрос {self.position}: {self.text[:50]}"
 
 
+class OptionAnswer(BaseTimeStampedModel):
+    """Свой вариант ответа на вопрос"""
+
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="options"
+    )
+    text = models.TextField()
+    position = models.PositiveIntegerField(
+        help_text="Позиция отображения внутри вопроса.",
+    )
+
+    class Meta:
+        ordering = ["position", "id"]
+
+    def __str__(self) -> str:
+        return f"Вариант ответа {self.position}: {self.text[:50]}"
+
+
 class Answer(BaseTimeStampedModel):
     """Ответ на вопрос"""
 
@@ -69,6 +87,9 @@ class Answer(BaseTimeStampedModel):
         Question, on_delete=models.CASCADE, related_name="answers"
     )
     text = models.TextField()
+    option = models.ForeignKey(
+        OptionAnswer, on_delete=models.CASCADE, null=True, blank=True
+    )
     position = models.PositiveIntegerField(
         help_text="Позиция отображения внутри опроса.",
     )
@@ -127,3 +148,18 @@ class QuestionStatistics(BaseTimeStampedModel):
 
     def __str__(self) -> str:
         return f"Статистика вопроса {self.question_id}"
+
+
+class OptionAnswerStatistics(BaseTimeStampedModel):
+    """Статистика своих вариантов ответа"""
+
+    option = models.OneToOneField(
+        OptionAnswer, on_delete=models.CASCADE, related_name="statistics"
+    )
+    answer_count = models.PositiveBigIntegerField(default=0, help_text="Кол-во ответов")
+    last_answered_at = models.DateTimeField(
+        null=True, blank=True, help_text="Время последнего ответа"
+    )
+
+    def __str__(self) -> str:
+        return f"Статистика своих вариантов ответа {self.option_id}"
