@@ -30,6 +30,11 @@ class Survey(BaseTimeStampedModel):
         default=SurveyStatus.DRAFT,
         db_index=True,
     )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="surveys",
+    )
 
     class Meta:
         ordering = ["-created_at", "-id"]
@@ -100,11 +105,22 @@ class Answer(BaseTimeStampedModel):
         help_text="Позиция отображения внутри опроса.",
     )
     is_active = models.BooleanField(default=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="survey_answers",
+    )
 
     class Meta:
         ordering = ["position", "id"]
         verbose_name = "Ответ"
         verbose_name_plural = "Ответы"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user", "question"),
+                name="unique_user_question",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"Ответ {self.position}: {self.text[:50]}"
