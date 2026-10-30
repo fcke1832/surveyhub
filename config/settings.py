@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core",
     "surveys",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -147,3 +148,4 @@ MAILERS = {
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+AUTH_USER_MODEL = "users.User"
