@@ -130,6 +130,10 @@ class Answer(BaseTimeStampedModel):
         related_name="survey_answers",
     )
     custom_text = models.TextField(blank=True, default="")
+    duration_ms = models.PositiveBigIntegerField(
+        default=0,
+        help_text="Время, затраченное на вопрос с предыдущего ответа.",
+    )
 
     class Meta:
         ordering = ["position", "id"]

@@ -173,8 +173,6 @@ class SurveyDetailSerializer(SurveyListSerializer):
 
 
 class SurveyBriefSerializer(serializers.ModelSerializer):
-    """Survey identity inside a taking session."""
-
     class Meta:
         model = Survey
         fields = ("id", "title")
