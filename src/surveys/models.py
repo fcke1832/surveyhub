@@ -47,6 +47,11 @@ class Survey(BaseTimeStampedModel):
         on_delete=models.PROTECT,
         related_name="surveys",
     )
+    # Денормализуем количество вопросов
+    question_count = models.PositiveIntegerField(
+        default=0,
+        help_text="Количество вопросов в опросе",
+    )
 
     objects = SurveyQuerySet.as_manager()
 
