@@ -1,0 +1,39 @@
+# Version control
+.git/
+.gitignore
+
+# Python bytecode / caches / build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# Local virtualenv — host .venv must NOT overwrite the container .venv
+.venv/
+
+# Local Docker CLI state (buildx) redirected into the workspace
+.docker-config/
+
+# Secrets / environment (provided at runtime by docker-compose)
+.env
+.env.*
+
+# Local Django artifacts
+db.sqlite3
+db.sqlite3-journal
+*.log
+staticfiles/
+media/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Docs / review — not needed at runtime
+README.md
+AGENTS.md
+REVIEW.md
