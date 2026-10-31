@@ -129,6 +129,7 @@ class Answer(BaseTimeStampedModel):
         on_delete=models.PROTECT,
         related_name="survey_answers",
     )
+    custom_text = models.TextField(blank=True, default="")
 
     class Meta:
         ordering = ["position", "id"]
