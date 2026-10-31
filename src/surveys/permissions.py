@@ -15,15 +15,12 @@ def survey_author_id(obj: object) -> int | None:
 
 
 class IsSurveyRespondent(BasePermission):
-    """Идентификация респондента"""
+    """Опрос может пройти только авторизованный респондент."""
 
     message = "Для прохождения опроса нужно идентифицировать пользователя."
 
     def has_permission(self, request, view) -> bool:
         return bool(request.user and request.user.is_authenticated)
-
-    def has_object_permission(self, request, view, obj) -> bool:
-        return survey_author_id(obj) == request.user.id
 
 
 class IsSurveyAuthor(BasePermission):
@@ -34,14 +31,8 @@ class IsSurveyAuthor(BasePermission):
     def has_permission(self, request, view) -> bool:
         return bool(request.user and request.user.is_authenticated)
 
-
-class IsSurveyRespondent(BasePermission):
-    """Опрос может пройти только авторизованный респондент."""
-
-    message = "Для прохождения опроса нужно идентифицировать пользователя."
-
-    def has_permission(self, request, view) -> bool:
-        return bool(request.user and request.user.is_authenticated)
+    def has_object_permission(self, request, view, obj) -> bool:
+        return survey_author_id(obj) == request.user.id
 
 
 class IsAuthorOrReadOnly(IsSurveyAuthor):
