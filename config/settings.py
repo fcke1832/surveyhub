@@ -176,3 +176,5 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+SURVEY_CUSTOM_ANSWER_MAX_LENGTH = 2000  # Максимальная длина ответа на вопрос
