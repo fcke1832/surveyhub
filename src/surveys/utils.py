@@ -17,7 +17,7 @@ def with_my_answered_count(queryset, *, user):
     if not (user and user.is_authenticated):
         return queryset
     answered = (
-        Answer.objects.filter(user_id=user.id, question__survey_id=OuterRef("pk"))
+        Answer.objects.filter(user_id=user.id, question__survey=OuterRef("pk"))
         .order_by()
         .values("question__survey_id")
         .annotate(total=Count("id"))

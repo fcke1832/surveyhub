@@ -265,7 +265,7 @@ def add_question(
     question = Question.objects.create(
         survey=survey,
         text=_clean_text(text),
-        position=0 if max_position is None else max_position,
+        position=0 if max_position is None else max_position + 1,
         allow_custom_answer=allow_custom_answer,
     )
     QuestionStatistics.objects.create(question=question)
@@ -296,11 +296,20 @@ def update_question(
     return question
 
 
+def _compact_positions(queryset) -> None:
+    """Перенумеровывает position элементов по порядку: 0, 1, 2, …"""
+    for index, item in enumerate(queryset.order_by("position", "id")):
+        if item.position != index:
+            item.position = index
+            item.save(update_fields=("position",))
+
+
 @transaction.atomic
 def delete_question(question: Question) -> None:
     """Удаляет вопрос"""
     survey = _get_survey_by_id(question.survey_id)
     question.delete()
+    _compact_positions(survey.questions.all())
     _sync_question_count(survey)
 
 
@@ -312,7 +321,7 @@ def add_option(question: Question, text: str) -> OptionAnswer:
     option = OptionAnswer.objects.create(
         question=question,
         text=_clean_text(text),
-        position=0 if max_position is None else max_position,
+        position=0 if max_position is None else max_position + 1,
     )
     OptionAnswerStatistics.objects.create(option=option)
     logger.info(f" >>>>>>>> add_option  success {question.__dict__=}")
@@ -327,9 +336,12 @@ def update_option(option: OptionAnswer, text: str | None = None) -> OptionAnswer
     return option
 
 
+@transaction.atomic
 def delete_option(option: OptionAnswer) -> None:
     """Удаляет вариант ответа."""
+    question_id = option.question_id
     option.delete()
+    _compact_positions(OptionAnswer.objects.filter(question_id=question_id))
 
 
 def get_next_question(survey_id: int, user) -> dict | None:
