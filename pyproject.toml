@@ -10,8 +10,15 @@ dependencies = [
     "djangorestframework>=3.18.3",
     "drf-spectacular>=0.28.0",
     "loguru>=0.7.3",
+    "psycopg[binary]>=3.2.0",
     "pytest>=9.2.0",
+    "pytest-django>=4.9.0",
+    "uvicorn>=0.30.0",
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
 
 [tool.uv]
 package = false
