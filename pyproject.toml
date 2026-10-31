@@ -10,6 +10,7 @@ dependencies = [
     "djangorestframework>=3.18.3",
     "drf-spectacular>=0.28.0",
     "loguru>=0.7.3",
+    "pytest>=9.2.0",
 ]
 
 [tool.uv]
