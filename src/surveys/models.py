@@ -42,11 +42,6 @@ class Survey(BaseTimeStampedModel):
         default=SurveyStatus.DRAFT,
         db_index=True,
     )
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name="surveys",
-    )
     # Денормализуем количество вопросов
     question_count = models.PositiveIntegerField(
         default=0,

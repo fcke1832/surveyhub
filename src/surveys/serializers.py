@@ -2,8 +2,6 @@ from rest_framework import serializers
 
 from .models import Answer, OptionAnswer, Question, Survey
 
-# from .selectors.surveys import progress_status
-
 
 def _author_name(survey: Survey) -> str:
     return survey.author.username
@@ -160,9 +158,14 @@ class SurveyListSerializer(serializers.ModelSerializer):
         stats = getattr(obj, "statistics", None)
         return stats.completed_count if stats else 0
 
-    # def get_my_progress_status(self, obj: Survey) -> str | None:
-    #     answered = getattr(obj, "my_answered_count", 0) or 0
-    #     return progress_status(answered=answered, total=obj.question_count)
+    def get_my_progress_status(self, obj: Survey) -> str | None:
+        """Статус прохождения опроса текущим пользователем."""
+        answered = getattr(obj, "my_answered_count", 0) or 0
+        if not answered:
+            return None
+        if answered >= obj.question_count:
+            return "completed"
+        return "in_progress"
 
 
 class SurveyDetailSerializer(SurveyListSerializer):
