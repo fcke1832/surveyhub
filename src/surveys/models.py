@@ -116,11 +116,12 @@ class Answer(BaseTimeStampedModel):
     question = models.ForeignKey(
         Question, on_delete=models.CASCADE, related_name="answers"
     )
-    text = models.TextField()
+    text = models.TextField(blank=True, default="")
     option = models.ForeignKey(
         OptionAnswer, on_delete=models.CASCADE, null=True, blank=True
     )
     position = models.PositiveIntegerField(
+        default=0,
         help_text="Позиция отображения внутри опроса.",
     )
     is_active = models.BooleanField(default=True)
@@ -173,6 +174,20 @@ class SurveyStatistics(BaseTimeStampedModel):
         null=True, blank=True, help_text="Время последнего ответа"
     )
 
+    @property
+    def completion_rate(self) -> float:
+        """Доля завершённых прохождений, %."""
+        if not self.started_count:
+            return 0.0
+        return round(self.completed_count / self.started_count * 100, 2)
+
+    @property
+    def average_duration_ms(self) -> float:
+        """Среднее время прохождения, мс."""
+        if not self.completed_count:
+            return 0.0
+        return round(self.total_duration_ms / self.completed_count, 2)
+
     class Meta:
         verbose_name = "Статистика опроса"
         verbose_name_plural = "Статистика опросов"
@@ -197,6 +212,13 @@ class QuestionStatistics(BaseTimeStampedModel):
     last_answered_at = models.DateTimeField(
         null=True, blank=True, help_text="Время последнего ответа"
     )
+
+    @property
+    def average_duration_ms(self) -> float:
+        """Среднее время ответа на вопрос, мс."""
+        if not self.answer_count:
+            return 0.0
+        return round(self.total_duration_ms / self.answer_count, 2)
 
     class Meta:
         verbose_name = "Статистика вопроса"
