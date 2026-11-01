@@ -23,7 +23,6 @@ def with_my_answered_count(queryset, *, user):
         .annotate(total=Count("id"))
         .values("total")
     )
-    logger.info(f">>>>>>> with_my_answered_count: {answered=}")
     return queryset.annotate(
         my_answered_count=Coalesce(
             Subquery(answered, output_field=IntegerField()), Value(0)
