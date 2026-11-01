@@ -1,5 +1,3 @@
-"""Login/logout API tests."""
-
 import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -10,11 +8,11 @@ pytestmark = pytest.mark.django_db
 
 
 def login_url() -> str:
-    return reverse("accounts_api:login")
+    return reverse("users_api:login")
 
 
 def logout_url() -> str:
-    return reverse("accounts_api:logout")
+    return reverse("users_api:logout")
 
 
 def test_login_registers_unknown_user():
@@ -29,24 +27,24 @@ def test_login_registers_unknown_user():
 
 
 def test_login_existing_user_with_correct_password():
-    user = User.objects.create_user(username="existing", password="right-password")
+    user = User.objects.create_user(username="test-user", password="password")
     client = APIClient()
     response = client.post(
         login_url(),
-        {"username": "existing", "password": "right-password"},
+        {"username": "test-user", "password": "password"},
         format="json",
     )
     assert response.status_code == 200
-    assert response.json()["username"] == "existing"
-    assert User.objects.filter(username="existing").count() == 1
+    assert response.json()["username"] == "test-user"
+    assert User.objects.filter(username="test-user").count() == 1
     assert client.session["_auth_user_id"] == str(user.id)
 
 
 def test_login_existing_user_with_wrong_password():
-    User.objects.create_user(username="existing", password="right-password")
+    User.objects.create_user(username="test-user", password="password")
     client = APIClient()
     response = client.post(
-        login_url(), {"username": "existing", "password": "wrong"}, format="json"
+        login_url(), {"username": "test-user", "password": "wrong"}, format="json"
     )
     assert response.status_code == 401
     assert "Неверный пароль" in response.json()["detail"]

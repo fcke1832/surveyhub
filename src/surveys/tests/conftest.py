@@ -1,14 +1,11 @@
-"""Shared fixtures for survey tests."""
-
-from __future__ import annotations
-
 from types import SimpleNamespace
 
 import pytest
 from rest_framework.test import APIClient
 
-from accounts.models import User
-from surveys.services.authoring import (
+from users.models import User
+
+from ..services import (
     add_option,
     add_question,
     create_survey,
@@ -18,24 +15,22 @@ from surveys.services.authoring import (
 
 @pytest.fixture
 def author(db):
-    """Survey owner."""
-    return User.objects.create_user(username="author", password="author-password")
+    return User.objects.create_user(username="author", password="password")
 
 
 @pytest.fixture
 def respondent(db):
-    """A user who takes surveys."""
-    return User.objects.create_user(username="respondent", password="respondent-password")
+    return User.objects.create_user(username="respondent", password="password")
 
 
 @pytest.fixture
 def content(author, db) -> SimpleNamespace:
-    """A published two-question survey with two options per question."""
-    survey = create_survey(author=author, title="Овощи", description="Тестовый опрос")
-    first = add_question(survey_id=survey.id, text="Ты любишь помидоры?")
+    """Публикуем 2 вопроса по 2 ответа в каждом"""
+    survey = create_survey(author=author, title="Опрос 1", description="Тестовый опрос")
+    first = add_question(survey_id=survey.id, text="Вопрос 1?")
     first_yes = add_option(question=first, text="Да")
     first_no = add_option(question=first, text="Нет")
-    second = add_question(survey_id=survey.id, text="Ты любишь огурцы?")
+    second = add_question(survey_id=survey.id, text="Вопрос 2?")
     second_yes = add_option(question=second, text="Да")
     second_no = add_option(question=second, text="Нет")
     publish_survey(survey_id=survey.id)

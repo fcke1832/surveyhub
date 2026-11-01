@@ -1,25 +1,27 @@
-"""Statistics endpoint tests."""
-
-from __future__ import annotations
-
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from surveys.models import SurveyStatistics
+from ..models import SurveyStatistics
 
 
 def stats_url(survey_id: int) -> str:
     return reverse("surveys_api:survey-statistics", kwargs={"pk": survey_id})
 
 
-def complete_survey(client, content, *, custom: bool = False) -> None:
-    client.get(reverse("surveys_api:next-question", kwargs={"survey_id": content.survey.id}))
+def complete_survey(client, content, custom: bool = False):
+    client.get(
+        reverse("surveys_api:next-question", kwargs={"survey_id": content.survey.id})
+    )
     client.post(
         reverse("surveys_api:submit-answer", kwargs={"survey_id": content.survey.id}),
         {"question_id": content.first.id, "option_id": content.first_options[0].id},
         format="json",
     )
-    answer = {"custom_text": "Свой ответ"} if custom else {"option_id": content.second_options[0].id}
+    answer = (
+        {"custom_text": "Свой ответ"}
+        if custom
+        else {"option_id": content.second_options[0].id}
+    )
     client.post(
         reverse("surveys_api:submit-answer", kwargs={"survey_id": content.survey.id}),
         {"question_id": content.second.id, **answer},
@@ -58,7 +60,9 @@ def test_stats_are_aggregated(author_client, respondent_client, content):
 
 
 def test_stats_include_partial_runs(author_client, respondent_client, content):
-    respondent_client.get(reverse("surveys_api:next-question", kwargs={"survey_id": content.survey.id}))
+    respondent_client.get(
+        reverse("surveys_api:next-question", kwargs={"survey_id": content.survey.id})
+    )
     respondent_client.post(
         reverse("surveys_api:submit-answer", kwargs={"survey_id": content.survey.id}),
         {"question_id": content.first.id, "option_id": content.first_options[1].id},
@@ -78,8 +82,10 @@ def test_stats_for_unknown_survey_is_404(author_client):
     assert author_client.get(stats_url(999_999)).status_code == 404
 
 
-def test_stats_persisted_counters_survive_multiple_respondents(author_client, respondent_client, content, db):
-    from accounts.models import User
+def test_stats_persisted_counters_survive_multiple_respondents(
+    author_client, respondent_client, content, db
+):
+    from users.models import User
 
     complete_survey(respondent_client, content)
 
